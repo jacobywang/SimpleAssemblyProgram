@@ -1,0 +1,104 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf100
+{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\margl1440\margr1440\vieww11640\viewh12040\viewkind0
+\deftab720
+\pard\pardeftab720\sl312\slmult1\partightenfactor0
+
+\f0\fs22 \cf2 \expnd0\expndtw0\kerning0
+			.Start Turing\
+Tape:			.String \'93_111000_\'94 ;starting input string\
+TTuples:		.Integer #25\
+			.Tuple \\1 0 1 1 r\\\
+			.Tuple \\0 _ 0 _ r\\\
+			.Tuple \\1 1 1 0 r\\\
+			.Tuple \\0 1 1 0 r\\\
+			.Tuple \\0 0 1 1 r\\\
+InitState:		.Integer #0\
+InitPos:		.Integer #0\
+InitMess:		.String \'93Initial String: \'94\
+OutMess:		.String \'93Output String: \'94\
+\
+;r0 will hold the current State\
+;r1 will have the current position/location on input string\
+\
+;r2 will have the length of input string\
+	;then # of loops searching for TTuple -> avoid infinite loop\
+;r3 will have the location where the input string starts\
+;r4 will have the location where the input string ends\
+\
+;r5 will hold the cs for the current ttuple\
+;r6 will hold the current input character\
+;r7 will hold the ic for current ttuple\
+;r8 will hold the current pos/location on ttuples\
+;r9 will hold the current ttuple direction\
+\
+Main:	movar Tape r3\
+	movxr r3 r2\
+	movrr r3 r4\
+	addrr r2 r4\
+	addir #1 r3\
+	movrr r3 r1\
+	addmr InitPos r1\
+	movmr InitState r0\
+	movir #0 r2		;now r2 is for # loops\
+\
+	outs InitMess\
+	outs Tape\
+	outci #10		;10 is \\n in ascii\
+	jsr NextChar\
+	outs OutMess\
+	outs Tape\
+	halt\
+	\
+NextChar: movar TTuples r8\
+	addir #1 r8	;sets up starting place for ttuple string\
+	movxr r1 r6\
+	clrr r2\
+\
+FindTT: addir #1 r2\
+     	cmpir #5 r2	;5 loops because there are 5 ttuples\
+	jmpp Stop\
+	movxr r8 r5\
+	cmprr r0 r5	;cmp cs\
+	jmpne NextTTs\
+	addir #1 r8\
+	movxr r8 r7\
+	cmprr r6 r7 	;cmp ic\
+	jmpne NextTTc\
+\
+NewS: addir #1 r8\
+	movxr r8 r0\
+\
+NewC: addir #1 r8\
+	movxx r8 r1\
+\
+\
+Direction: addir #1 r8\
+	movxr r8 r9\
+	cmpir #1 r9	\
+	jmpne Left\
+\
+Right: cmprr r1 r4\
+	jmpz Done\
+	addir #1 r1\
+	jmp NextChar\
+\
+Left: cmprr r1 r3\
+	jmpz Done\
+	subir #1 r1\
+	jmp NextChar\
+\
+Done: ret\
+	\
+NextTTs: addir #5 r8\
+	jmp FindTT\
+\
+NextTTc: addir #4 r8\
+	jmp FindTT\
+\
+Stop: halt\
+	.end\
+\
+}

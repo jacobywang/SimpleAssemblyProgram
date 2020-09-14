@@ -1,0 +1,173 @@
+0:                   
+0: 8 95 88 88        Tape: .String "_XX.YYY+" ;starting input string
+9: 0 95 0 95         TTuples: .Tuple \0 _ 0 _ r\
+14: 0 88 0 65        	.Tuple \0 X 0 A r\
+19: 0 46 0 46        	.Tuple \0 . 0 . r\
+24: 0 89 0 66        	.Tuple \0 Y 0 B r\
+29: 0 43 1 43        	.Tuple \0 + 1 + l\
+34: 1 66 1 68        	.Tuple \1 B 1 D l\
+39: 1 46 1 46        	.Tuple \1 . 1 . l\
+44: 1 65 1 67        	.Tuple \1 A 1 C l\
+49: 0                InitState: .Integer #0
+50: 0                InitPos: .Integer #0
+51: 15 73 110 105    InitStateMess: .String "Initial State: "
+67: 19 73 110 105    InitHead: .String "Initial Tape Head: "
+87: 14 73 110 105    InitTape: .String "Initial Tape: "
+102: 19 84 117 114   End: .String "Turing run complete"
+122: 12 70 105 110   OutMess: .String "Final Tape: "
+135: 37 67 111 117   Error:	.String "Could not find Tuple to match cs/ic: "
+173: 0               CurrTup: .allocate #1	;holds the current tuple location so it can be printed
+174:                 ;r0 holds the current state
+174:                 ;r1 holds the current position/location on input string
+174:                 ;r2 will have the length of input string
+174:                 	; Then # of loops searching for TTUple -> avoid infinite loop
+174:                 ;r3 will have the location of where the tape starts
+174:                 ;r4 will have the location of where the tape ends
+174:                 ;r5 will hold the cs for the current ttuple
+174:                 ;r6 will hold the current input character
+174:                 ;r7 will hold the ic for the current ttuple
+174:                 ;r8 will hold the current pos/location on ttuples
+174:                 ;r9 will hold the current ttuple direction
+174:                 ;in Print
+174:                 ;r5 will hold the current printing position on the tape
+174:                 ;r6 will hold the current tuple location
+174:                 ;r7 will hold the current tuple value
+174:                 ;r8 will hold print string end
+174: 10 0 3          SetUp: movar Tape r3
+177: 9 3 2                  movxr r3 r2
+180: 6 3 4                  movrr r3 r4
+183: 13 2 4                 addrr r2 r4
+186: 12 1 3                 addir #1 r3
+189: 6 3 1                  movrr r3 r1
+192: 14 50 1                addmr InitPos r1
+195: 8 49 0                 movmr InitState r0
+198: 5 0 2                  movir #0 r2      ; now r2 is for # loops
+201: 55 51                  outs InitStateMess
+203: 8 49 5                 movmr InitState r5
+206: 49 5                   printi r5
+208: 44 10                  outci #10
+210: 55 67                  outs InitHead
+212: 8 50 5                 movmr InitPos r5
+215: 49 5                   printi r5
+217: 44 10                  outci #10
+219: 55 87                  outs InitTape
+221: 55 0                   outs Tape
+223: 44 10                  outci #10	;10 is \n in ascii
+225: 39 232                 jsr NextChar
+227: 55 122                 outs OutMess
+229: 55 0                   outs Tape
+231: 0                      halt
+232: 10 9 8          NextChar: movar TTuples r8
+235: 9 1 6                     movxr r1 r6
+238: 1 2                       clrr r2
+240: 12 1 2          FindTT: addir #1 r2
+243: 33 8 2                  cmpir #8 r2    ; 8 loops for 8 ttuples--((NEED TO BE CHANGED W/ NEW TUPLES))
+246: 38 408                  jmpp Stop
+248: 9 8 5                   movxr r8 r5
+251: 34 0 5                  cmprr r0 r5 ;cmp cs
+254: 57 319                  jmpne NextTTs
+256: 12 1 8                  addir #1 r8
+259: 9 8 7                   movxr r8 r7
+262: 34 6 7                  cmprr r6 r7  ; cmp ic
+265: 57 324                  jmpne NextTTc
+267: 16 1 8          	subir #1 r8
+270: 7 8 173         	movrm r8 CurrTup
+273: 12 2 8          NewS: addir #2 r8
+276: 9 8 0                 movxr r8 r0
+279: 12 1 8          NewC: addir #1 r8
+282: 54 8 1                movxx r8 r1
+285: 39 329                jsr Print
+287: 12 1 8          Direction: addir #1 r8
+290: 9 8 9                      movxr r8 r9
+293: 33 1 9                     cmpir #1 r9
+296: 57 308                     jmpne Left
+298: 34 1 4          Right: cmprr r1 r4
+301: 37 318                 jmpz Done
+303: 12 1 1                 addir #1 r1
+306: 28 232                 jmp NextChar
+308: 34 1 3          Left: cmprr r1 r3
+311: 37 318                jmpz Done
+313: 16 1 1                subir #1 r1
+316: 28 232                jmp NextChar
+318: 40              Done: ret
+319: 12 5 8          NextTTs: addir #5 r8
+322: 28 240                   jmp FindTT
+324: 12 4 8          NextTTc: addir #4 r8
+327: 28 240                   jmp FindTT
+329: 6 3 5           Print: movrr r3 r5
+332: 8 173 6         	movmr CurrTup r6
+335: 6 4 8           	movrr r4 r8
+338: 12 1 8          	addir #1 r8
+341: 34 5 1          PrintTape: cmprr r5 r1
+344: 37 400          	jmpz PrintHead
+346: 46 5            	outcx r5
+348: 12 1 5          PrintCont: addir #1 r5
+351: 34 5 8          	cmprr r5 r8
+354: 57 341          	jmpne PrintTape
+356: 44 32           PrintTup: outci #32
+358: 9 6 7              	movxr r6 r7
+361: 49 7            	printi r7
+363: 44 32           	outci #32
+365: 12 1 6          	addir #1 r6
+368: 46 6            	outcx r6
+370: 44 32           	outci #32
+372: 12 1 6          	addir #1 r6
+375: 9 6 7           	movxr r6 r7
+378: 49 7            	printi r7
+380: 44 32           	outci #32
+382: 12 1 6          	addir #1 r6
+385: 46 6            	outcx r6
+387: 44 32           	outci #32
+389: 12 1 6          	addir #1 r6
+392: 9 6 7           	movxr r6 r7
+395: 49 7            	printi r7
+397: 44 10           	outci #10
+399: 40              	ret	
+400: 44 91           PrintHead: outci #91
+402: 46 5            	outcx r5
+404: 44 93           	outci #93
+406: 28 348          	jmp PrintCont
+408: 55 135          Stop: 	outs Error
+410: 49 0            	printi r0
+412: 44 47           	outci #47
+414: 45 6            	outcr r6
+416: 44 10           	outci #10
+418: 55 102          	outs End
+420: 44 10           	outci #10
+422: 55 122          	outs OutMess
+424: 55 0            	outs Tape
+426: 0               	halt
+427:                         .end
+427:                         
+427:                        
+427:                        
+
+Symbol Table:
+initstatemess 51 
+done 318 
+nextttc 324 
+direction 287 
+error 135 
+tape 0 
+initstate 49 
+stop 408 
+print 329 
+currtup 173 
+printcont 348 
+inithead 67 
+end 102 
+right 298 
+nextchar 232 
+findtt 240 
+left 308 
+printhead 400 
+outmess 122 
+news 273 
+printtup 356 
+ttuples 9 
+inittape 87 
+newc 279 
+initpos 50 
+printtape 341 
+setup 174 
+nexttts 319 

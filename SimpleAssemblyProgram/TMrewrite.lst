@@ -1,0 +1,99 @@
+0:                   
+0: 8 95 49 49        Tape: .String "_111000_" ;starting input string
+9: 25                TTuples: .Integer #25
+10: 1 48 1 49        	.Tuple \1 0 1 1 r\
+15: 0 95 0 95        	.Tuple \0 _ 0 _ r\
+20: 1 49 1 48        	.Tuple \1 1 1 0 r\
+25: 0 49 1 48        	.Tuple \0 1 1 0 r\
+30: 0 48 1 49        	.Tuple \0 0 1 1 r\
+35: 0                InitState: .Integer #0
+36: 0                InitPos: .Integer #0
+37: 16 73 110 105    InitMess: .String "Initial String: "
+54: 15 79 117 116    OutMess: .String "Output String: "
+70:                  ;r0 holds the current state
+70:                  ;r1 holds the current position/location on input string
+70:                  ;r2 will have the length of input string
+70:                  	; Then # of loops searching for TTUple -> avoid infinite loop
+70:                  ;r3 will have the location of where the input string starts
+70:                  ;r4 will have the location of where the input string ends
+70:                  ;r5 will hold the cs for the current ttuple
+70:                  ;r6 will hold the current input character
+70:                  ;r7 will hold the ic for the current ttuple
+70:                  ;r8 will hold the current pos/location on ttuples
+70:                  ;r9 will hold the current ttuple direction
+70: 10 0 3           SetUp: movar tape r3
+73: 9 3 2                   movxr r3 r2
+76: 6 3 4                   movrr r3 r4
+79: 13 2 4                  addrr r2 r4
+82: 12 1 3                  addir #1 r3
+85: 6 3 1                   movrr r3 r1
+88: 14 36 1                 addmr InitPos r1
+91: 8 35 0                  movmr InitState r0
+94: 5 0 2                   movir #0 r2      ; now r2 is for # loops
+97: 55 37                   outs InitMess
+99: 55 0                    outs Tape
+101: 44 10                  outci #10
+103: 39 110                 jsr NextChar
+105: 55 54                  outs OutMess
+107: 55 0                   outs Tape
+109: 0                      halt
+110: 10 9 8          NextChar: movar TTuples r8
+113: 12 1 8                    addir #1 r8    ; sets up starting place for ttuple string
+116: 9 1 6                     movxr r1 r6
+119: 1 2                       clrr r2
+121: 12 1 2          FindTT: addir #1 r2
+124: 33 5 2                  cmpir #5 r2    ; 5 loops for 5 ttuples
+127: 38 202                  jmpp Stop
+129: 9 8 5                   movxr r8 r5
+132: 34 0 5                  cmprr r0 r5 ;cmp cs
+135: 57 192                  jmpne NextTTs
+137: 12 1 8                  addir #1 r8
+140: 9 8 7                   movxr r8 r7
+143: 34 6 7                  cmprr r6 r7  ; cmp ic
+146: 57 197                  jmpne NextTTc
+148: 12 1 8          NewS: addir #1 r8
+151: 9 8 0                 movxr r8 r0
+154: 12 1 8          NewC: addir #1 r8
+157: 54 8 1                movxx r8 r1
+160: 12 1 8          Direction: addir #1 r8
+163: 9 8 9                      movxr r8 r9
+166: 33 1 9                     cmpir #1 r9
+169: 57 181                     jmpne Left
+171: 34 1 4          Right: cmprr r1 r4
+174: 37 191                 jmpz Done
+176: 12 1 1                 addir #1 r1
+179: 28 110                 jmp NextChar
+181: 34 1 3          Left: cmprr r1 r3
+184: 37 191                jmpz Done
+186: 16 1 1                subir #1 r1
+189: 28 110                jmp NextChar
+191: 40              Done: ret
+192: 12 5 8          NextTTs: addir #5 r8
+195: 28 121                   jmp FindTT
+197: 12 4 8          NextTTc: addir #4 r8
+200: 28 121                   jmp FindTT
+202: 0               Stop: halt
+203:                         .end
+203:                         
+203:                        
+203:                        
+
+Symbol Table:
+done 191 
+right 171 
+nextttc 197 
+nextchar 110 
+findtt 121 
+direction 160 
+tape 0 
+left 181 
+outmess 54 
+news 148 
+initmess 37 
+initstate 35 
+ttuples 9 
+newc 154 
+initpos 36 
+stop 202 
+setup 70 
+nexttts 192 

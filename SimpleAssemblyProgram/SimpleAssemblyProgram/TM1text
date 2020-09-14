@@ -1,0 +1,169 @@
+.start SetUp
+
+Tape: .String "_XX.YYY+" ;starting input string
+
+TTuples: .Tuple \0 _ 0 _ r\
+.Tuple \0 X 0 A r\
+.Tuple \0 . 0 . r\
+.Tuple \0 Y 0 B r\
+.Tuple \0 + 1 + l\
+.Tuple \1 B 1 D l\
+.Tuple \1 . 1 . l\
+.Tuple \1 A 1 C l\
+
+InitState: .Integer #0
+InitPos: .Integer #0
+InitStateMess: .String "Initial State: "
+InitHead: .String "Initial Tape Head: "
+InitTape: .String "Initial Tape: "
+End: .String "Turing run complete"
+OutMess: .String "Final Tape: "
+Error:    .String "Could not find Tuple to match cs/ic: "
+CurrTup: .allocate #1    ;holds the current tuple location so it can be printed
+
+;r0 holds the current state
+;r1 holds the current position/location on input string
+
+;r2 will have the length of input string
+; Then # of loops searching for TTUple -> avoid infinite loop
+;r3 will have the location of where the tape starts
+;r4 will have the location of where the tape ends
+
+;r5 will hold the cs for the current ttuple
+;r6 will hold the current input character
+;r7 will hold the ic for the current ttuple
+;r8 will hold the current pos/location on ttuples
+;r9 will hold the current ttuple direction
+
+;in Print
+;r5 will hold the current printing position on the tape
+;r6 will hold the current tuple location
+;r7 will hold the current tuple value
+;r8 will hold print string end
+
+SetUp: movar Tape r3
+movxr r3 r2
+movrr r3 r4
+addrr r2 r4
+addir #1 r3
+movrr r3 r1
+addmr InitPos r1
+movmr InitState r0
+movir #0 r2      ; now r2 is for # loops
+
+outs InitStateMess
+movmr InitState r5
+printi r5
+outci #10
+outs InitHead
+movmr InitPos r5
+printi r5
+outci #10
+outs InitTape
+outs Tape
+outci #10    ;10 is \n in ascii
+jsr NextChar
+outs OutMess
+outs Tape
+halt
+
+NextChar: movar TTuples r8
+movxr r1 r6
+clrr r2
+
+FindTT: addir #1 r2
+cmpir #8 r2    ; 8 loops for 8 ttuples--((NEED TO BE CHANGED W/ NEW TUPLES))
+jmpp Stop
+movxr r8 r5
+cmprr r0 r5 ;cmp cs
+jmpne NextTTs
+addir #1 r8
+movxr r8 r7
+cmprr r6 r7  ; cmp ic
+jmpne NextTTc
+subir #1 r8
+movrm r8 CurrTup
+
+NewS: addir #2 r8
+movxr r8 r0
+
+NewC: addir #1 r8
+movxx r8 r1
+jsr Print
+
+
+Direction: addir #1 r8
+movxr r8 r9
+cmpir #1 r9
+jmpne Left
+
+Right: cmprr r1 r4
+jmpz Done
+addir #1 r1
+jmp NextChar
+
+Left: cmprr r1 r3
+jmpz Done
+subir #1 r1
+jmp NextChar
+
+Done: ret
+
+NextTTs: addir #5 r8
+jmp FindTT
+
+NextTTc: addir #4 r8
+jmp FindTT
+
+Print: movrr r3 r5
+movmr CurrTup r6
+movrr r4 r8
+addir #1 r8
+
+PrintTape: cmprr r5 r1
+jmpz PrintHead
+outcx r5
+PrintCont: addir #1 r5
+cmprr r5 r8
+jmpne PrintTape
+
+PrintTup: outci #32
+movxr r6 r7
+printi r7
+outci #32
+addir #1 r6
+outcx r6
+outci #32
+addir #1 r6
+movxr r6 r7
+printi r7
+outci #32
+addir #1 r6
+outcx r6
+outci #32
+addir #1 r6
+movxr r6 r7
+printi r7
+outci #10
+ret
+
+PrintHead: outci #91
+outcx r5
+outci #93
+jmp PrintCont
+
+Stop:     outs Error
+printi r0
+outci #47
+outcr r6
+outci #10
+outs End
+outci #10
+outs OutMess
+outs Tape
+halt
+.end
+
+
+
+
